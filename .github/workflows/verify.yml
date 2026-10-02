@@ -1,0 +1,32 @@
+name: Verify ifound
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+      - run: npm audit --audit-level=high
+  stack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/setup-env.mjs
+      - run: docker compose up -d --build --wait
+      - run: node scripts/test-stack.mjs
+      - run: node scripts/test-stack-ui.mjs
+      - if: always()
+        run: docker compose logs --tail=100
+      - if: always()
+        run: docker compose down

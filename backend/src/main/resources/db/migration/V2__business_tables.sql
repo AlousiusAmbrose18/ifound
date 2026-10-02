@@ -1,0 +1,10 @@
+CREATE TABLE customers (id VARCHAR(100) PRIMARY KEY, record_data JSON NOT NULL, sort_order INT NOT NULL);
+CREATE TABLE watchlist_records (id VARCHAR(100) PRIMARY KEY, record_data JSON NOT NULL, sort_order INT NOT NULL);
+CREATE TABLE alerts (id VARCHAR(100) PRIMARY KEY, record_data JSON NOT NULL, sort_order INT NOT NULL);
+CREATE TABLE transactions (id VARCHAR(100) PRIMARY KEY, customer_id VARCHAR(100), amount DECIMAL(16,2) NOT NULL, occurred_at TIMESTAMP(6) NULL, record_data JSON NOT NULL, sort_order INT NOT NULL, INDEX transaction_velocity(customer_id,occurred_at));
+CREATE TABLE rule_settings (id TINYINT PRIMARY KEY, record_data JSON NOT NULL);
+ALTER TABLE workspace ADD COLUMN relational_initialized BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE TABLE app_users (id VARCHAR(100) PRIMARY KEY, username VARCHAR(64) NOT NULL UNIQUE, password_hash VARCHAR(500) NOT NULL, role VARCHAR(20) NOT NULL, active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE app_sessions (token_hash CHAR(64) PRIMARY KEY, user_id VARCHAR(100) NOT NULL, expires_at TIMESTAMP NOT NULL, FOREIGN KEY(user_id) REFERENCES app_users(id) ON DELETE CASCADE, INDEX session_expiry(expires_at));
+CREATE TABLE login_attempts (username VARCHAR(64) PRIMARY KEY, failures INT NOT NULL, locked_until TIMESTAMP NULL);
+CREATE TABLE audit_events (id BIGINT PRIMARY KEY AUTO_INCREMENT, actor VARCHAR(64) NOT NULL, action VARCHAR(100) NOT NULL, subject VARCHAR(200) NOT NULL, occurred_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6));
